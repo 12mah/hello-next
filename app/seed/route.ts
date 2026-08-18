@@ -2,7 +2,10 @@ import bcrypt from 'bcrypt';
 import postgres from 'postgres';
 import { invoices, customers, revenue, users } from '../lib/placeholder-data';
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+const isLocalDb = /localhost|127\.0\.0\.1/.test(process.env.POSTGRES_URL || '');
+const sql = postgres(process.env.POSTGRES_URL!, {
+  ssl: isLocalDb ? false : 'require',
+});
 
 async function seedUsers() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
