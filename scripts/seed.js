@@ -5,8 +5,6 @@ const path = require('path');
 const Module = require('module');
 const bcrypt = require('bcrypt');
 const postgres = require('postgres');
-const {db,createClient} = require('@vercel/postgres');
-const { getClient } = require('./pg-local');
 function loadPlaceholderData() {
   const dataPath = path.join(__dirname, '../app/lib/placeholder-data.ts');
   const source = fs
@@ -116,9 +114,6 @@ async function main() {
   if (!process.env.POSTGRES_URL) {
     throw new Error('缺少 POSTGRES_URL，请检查 .env 文件');
   }
-  const client = await createClient({ connectionString: process.env.POSTGRES_URL })
-  await client.connect();
-
   await sql.begin(async (tx) => {
     await seedUsers(tx);
     await seedCustomers(tx);
