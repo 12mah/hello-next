@@ -28,9 +28,16 @@ yarn-error.log*
 .env*.local
 .env
 
+# lockfiles from other package managers (this project uses yarn)
+package-lock.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/generated/prisma

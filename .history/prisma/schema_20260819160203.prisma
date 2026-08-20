@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL") // 或 DATABASE_URL
+}
+
+model User {
+  id       String @id @default(uuid()) @db.Uuid
+  name     String @db.VarChar(255)
+  email    String @unique
+  password String
+
+  @@map("users")
+}
+
+model Customer {
+  id       String    @id @default(uuid()) @db.Uuid
+  name     String    @db.VarChar(255)
+  email    String    @db.VarChar(255)
+  imageUrl String    @map("image_url") @db.VarChar(255)
+  invoices Invoice[]
+
+  @@map("customers")
+}
+
+model Invoice {
+  id         String   @id @default(uuid()) @db.Uuid
+  customerId String   @map("customer_id") @db.Uuid
+  amount     Int
+  status     String   @db.VarChar(255)
+  date       DateTime @db.Date
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  @@map("invoices")
+}
+
+model Revenue {
+  month   String @id @db.VarChar(4)
+  revenue Int
+
+  @@map("revenue")
+}

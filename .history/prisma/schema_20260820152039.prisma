@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name     String @db.VarChar(255)
+  email    String @unique
+  password String
+
+  @@map("users")
+}
+
+model Customer {
+  id       String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name     String    @db.VarChar(255)
+  email    String    @db.VarChar(255)
+  phone    String?   @db.VarChar(32)
+  imageUrl String    @map("image_url") @db.VarChar(255)
+  invoices Invoice[]   // 一个客户 → 多张发票
+
+  @@map("customers")
+}
+
+model Invoice {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  customerId String   @map("customer_id") @db.Uuid  // 发票上存客户编号
+  amount     Int
+  status     String   @db.VarChar(255)
+  date       DateTime @db.Date
+  customer   Customer @relation(fields: [customerId], references: [id]) // 多对一：多张发票指向同一个客户 id
+
+  @@map("invoices")
+}
+
+model Revenue {
+  month   String @id @db.VarChar(4)
+  revenue Int
+
+  @@map("revenue")
+}

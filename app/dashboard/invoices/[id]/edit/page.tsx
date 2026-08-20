@@ -16,9 +16,9 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: 'Invoices', href: '/dashboard/invoices' },
+          { label: '发票', href: '/dashboard/invoices' },
           {
-            label: 'Edit Invoice',
+            label: '编辑发票',
             href: `/dashboard/invoices/${id}/edit`,
             active: true,
           },
