@@ -1,6 +1,6 @@
 'use client';
 
-import { CustomerField } from '@/app/lib/definitions';
+import { CustomerField, TagField } from '@/app/lib/definitions';
 import Link from 'next/link';
 import {
   CheckIcon,
@@ -11,8 +11,15 @@ import {
 import { Button } from '@/app/ui/button';
 import { createInvoice, InvoiceFormState } from '@/app/lib/actions';
 import { useActionState } from 'react';
+import TagCheckboxes from '@/app/ui/invoices/tag-checkboxes';
 
-export default function Form({ customers }: { customers: CustomerField[] }) {
+export default function Form({
+  customers,
+  tags,
+}: {
+  customers: CustomerField[];
+  tags: TagField[];
+}) {
   const initialState: InvoiceFormState = { message: null, errors: {} };
   const [state, formAction] = useActionState(createInvoice, initialState);
 
@@ -128,6 +135,10 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
             ))}
           </div>
         </fieldset>
+
+        <div className="mt-4">
+          <TagCheckboxes tags={tags} />
+        </div>
       </div>
       <div className="mt-6 flex justify-end gap-4">
         <Link

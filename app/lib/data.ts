@@ -151,6 +151,13 @@ export async function fetchFilteredInvoices(
             imageUrl: true,
           },
         },
+        tags: {
+          select: {
+            tag: {
+              select: { id: true, name: true },
+            },
+          },
+        },
       },
     });
 
@@ -164,6 +171,10 @@ export async function fetchFilteredInvoices(
         name: invoice.customer.name,
         email: invoice.customer.email,
         image_url: invoice.customer.imageUrl,
+        tags: invoice.tags.map((row) => ({
+          id: row.tag.id,
+          name: row.tag.name,
+        })),
       }),
     );
   } catch (error) {
@@ -202,6 +213,9 @@ export async function fetchInvoiceById(id: string) {
         customerId: true,
         amount: true,
         status: true,
+        tags: {
+          select: { tagId: true },
+        },
       },
     });
 
@@ -212,6 +226,7 @@ export async function fetchInvoiceById(id: string) {
       customer_id: invoice.customerId,
       amount: invoice.amount / 100,
       status: invoice.status as 'pending' | 'paid',
+      tag_ids: invoice.tags.map((row) => row.tagId),
     };
     return result;
   } catch (error) {
@@ -283,4 +298,11 @@ export async function fetchUserWithProfile(userId: string) {
     console.error('Database Error:', err);
     throw new Error('Failed to fetch user profile.');
   }
+}
+export async function fetchTags() {
+  noStore();
+  return prisma.tag.findMany({
+    orderBy: { name: 'asc' },
+    select: { id: true, name: true },
+  });
 }

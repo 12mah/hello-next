@@ -1,6 +1,6 @@
 'use client';
 
-import { CustomerField, InvoiceForm } from '@/app/lib/definitions';
+import { CustomerField, InvoiceForm, TagField } from '@/app/lib/definitions';
 import {
   CheckIcon,
   ClockIcon,
@@ -11,13 +11,16 @@ import Link from 'next/link';
 import { Button } from '@/app/ui/button';
 import { updateInvoice, InvoiceFormState } from '@/app/lib/actions';
 import { useActionState } from 'react';
+import TagCheckboxes from '@/app/ui/invoices/tag-checkboxes';
 
 export default function EditInvoiceForm({
   invoice,
   customers,
+  tags,
 }: {
   invoice: InvoiceForm;
   customers: CustomerField[];
+  tags: TagField[];
 }) {
   const initialState: InvoiceFormState = { message: null, errors: {} };
   const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
@@ -135,6 +138,10 @@ export default function EditInvoiceForm({
             ))}
           </div>
         </fieldset>
+
+        <div className="mt-4">
+          <TagCheckboxes tags={tags} selectedIds={invoice.tag_ids} />
+        </div>
       </div>
       <div className="mt-6 flex justify-end gap-4">
         <Link

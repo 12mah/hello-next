@@ -38,6 +38,18 @@ export default async function InvoicesTable({
                       <p>{invoice.name}</p>
                     </div>
                     <p className="text-sm text-gray-500">{invoice.email}</p>
+                    {invoice.tags.length > 0 ? (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {invoice.tags.map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="rounded-full bg-sky-100 px-2 py-0.5 text-xs text-sky-700"
+                          >
+                            {tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                   <InvoiceStatus status={invoice.status} />
                 </div>
@@ -74,6 +86,9 @@ export default async function InvoicesTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   状态
                 </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  标签
+                </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">编辑</span>
                 </th>
@@ -108,6 +123,22 @@ export default async function InvoicesTable({
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     <InvoiceStatus status={invoice.status} />
+                  </td>
+                  <td className="px-3 py-3">
+                    <div className="flex flex-wrap gap-1">
+                      {invoice.tags.length > 0
+                        ? invoice.tags.map((tag) => (
+                            <span
+                              key={tag.id}
+                              className="rounded-full bg-sky-100 px-2 py-0.5 text-xs text-sky-700"
+                            >
+                              {tag.name}
+                            </span>
+                          ))
+                        : (
+                            <span className="text-gray-400">—</span>
+                          )}
+                    </div>
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">

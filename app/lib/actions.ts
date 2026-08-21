@@ -23,6 +23,14 @@ const FormSchema = z.object({
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
+/** 表单多选：name="tagIds" 的 checkbox 值 */
+function getTagIds(formData: FormData) {
+  return formData
+    .getAll('tagIds')
+    .map(String)
+    .filter((id) => id.trim() !== '');
+}
+
 export type InvoiceFormState = {
   errors?: {
     customerId?: string[];
@@ -72,9 +80,10 @@ export async function createInvoice(
   const amountInCents = Math.round(amount * 100);
   const date = new Date();
   date.setHours(0, 0, 0, 0);
+  const tagIds = getTagIds(formData);
 
   try {
-    await prisma.invoice.create({
+    const invoice = await prisma.invoice.create({
       data: {
         customerId,
         amount: amountInCents,
@@ -82,6 +91,15 @@ export async function createInvoice(
         date,
       },
     });
+
+    if (tagIds.length > 0) {
+      await prisma.invoiceTag.createMany({
+        data: tagIds.map((tagId) => ({
+          invoiceId: invoice.id,
+          tagId,
+        })),
+      });
+    }
   } catch (error) {
     console.error(error);
     return { message: '数据库错误：创建发票失败。' };
@@ -111,6 +129,7 @@ export async function updateInvoice(
 
   const { customerId, amount, status } = validated.data;
   const amountInCents = Math.round(amount * 100);
+  const tagIds = getTagIds(formData);
 
   try {
     await prisma.invoice.update({
@@ -121,6 +140,17 @@ export async function updateInvoice(
         status,
       },
     });
+
+    // 多对多：先清空该发票旧关联，再按勾选重建
+    await prisma.invoiceTag.deleteMany({ where: { invoiceId: id } });
+    if (tagIds.length > 0) {
+      await prisma.invoiceTag.createMany({
+        data: tagIds.map((tagId) => ({
+          invoiceId: id,
+          tagId,
+        })),
+      });
+    }
   } catch (error) {
     console.error(error);
     return { message: '数据库错误：更新发票失败。' };

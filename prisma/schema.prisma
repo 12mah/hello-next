@@ -8,24 +8,24 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name     String @db.VarChar(255)
-  email    String @unique
+  id       String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name     String       @db.VarChar(255)
+  email    String       @unique
   password String
   profile  UserProfile?
 
   @@map("users")
 }
+
 model UserProfile {
   id        String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  userId    String  @unique @map("user_id") @db.Uuid  // 唯一 → 一对一
+  userId    String  @unique @map("user_id") @db.Uuid
   nickname  String? @db.VarChar(255)
   avatarUrl String? @map("avatar_url") @db.VarChar(255)
   phone     String? @db.VarChar(32)
   bio       String? @db.VarChar(500)
   user      User    @relation(fields: [userId], references: [id])
 
-  
   @@map("user_profiles")
 }
 
@@ -35,20 +35,43 @@ model Customer {
   email    String    @db.VarChar(255)
   phone    String?   @db.VarChar(32)
   imageUrl String    @map("image_url") @db.VarChar(255)
-  invoices Invoice[]  // 一对多：一个客户多张发票
+  invoices Invoice[]
 
   @@map("customers")
 }
 
 model Invoice {
-  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  customerId String   @map("customer_id") @db.Uuid  // 发票上存客户编号
+  id         String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  customerId String       @map("customer_id") @db.Uuid
   amount     Int
-  status     String   @db.VarChar(255)
-  date       DateTime @db.Date
-  customer   Customer @relation(fields: [customerId], references: [id]) // 多对一：多张发票指向同一个客户 id
+  status     String       @db.VarChar(255)
+  date       DateTime     @db.Date
+  customer   Customer     @relation(fields: [customerId], references: [id])
+  // 多对多：一张发票可有多个标签（经中间表 InvoiceTag）
+  tags       InvoiceTag[]
 
   @@map("invoices")
+}
+
+// 标签主表
+model Tag {
+  id       String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name     String       @unique @db.VarChar(50)
+  // 多对多：一个标签可挂在多张发票上
+  invoices InvoiceTag[]
+
+  @@map("tags")
+}
+
+// 中间表：发票 ↔ 标签（多对多）
+model InvoiceTag {
+  invoiceId String  @map("invoice_id") @db.Uuid
+  tagId     String  @map("tag_id") @db.Uuid
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([invoiceId, tagId])
+  @@map("invoice_tags")
 }
 
 model Revenue {
